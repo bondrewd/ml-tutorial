@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 def main():
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Tutorial 01')
+    parser = argparse.ArgumentParser(description='Tutorial 04')
     parser.add_argument('--num-samples', '-n', type=int, default=100000, help='Number of samples')
     parser.add_argument('--seed', '-s', type=int, default=0, help='Random seed')
     parser.add_argument('--num-epochs', type=int, default=100, help='Number of epochs')

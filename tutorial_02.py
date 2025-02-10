@@ -19,7 +19,7 @@ def elbo(x, phi, p1, p2):
 
 def main():
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Tutorial 01')
+    parser = argparse.ArgumentParser(description='Tutorial 02')
     parser.add_argument('--num-samples', '-n', type=int, default=100000, help='Number of samples')
     parser.add_argument('--seed', '-s', type=int, default=0, help='Random seed')
     parser.add_argument('--lr', type=float, default=0.01, help='Learning rate')
