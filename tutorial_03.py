@@ -22,7 +22,7 @@ def main():
     parser = argparse.ArgumentParser(description='Tutorial 03')
     parser.add_argument('--num-samples', '-n', type=int, default=100000, help='Number of samples')
     parser.add_argument('--seed', '-s', type=int, default=0, help='Random seed')
-    parser.add_argument('--lr', type=float, default=0.01, help='Learning rate')
+    parser.add_argument('--lr', type=float, default=1e-2, help='Learning rate')
     parser.add_argument('--num-epochs', type=int, default=1000, help='Number of epochs')
     args = parser.parse_args()
 
