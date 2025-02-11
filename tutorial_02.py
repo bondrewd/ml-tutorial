@@ -78,7 +78,7 @@ def main():
     optimizer = torch.optim.Adam([phi, mu1, mu2, sigma1, sigma2], lr=lr)
 
     # Train model
-    loss_list = []
+    log_likelihood_list = []
     phi_list = [F.sigmoid(phi).data.item()]
     mu1_list = [mu1.data.item()]
     mu2_list = [mu2.data.item()]
@@ -91,7 +91,7 @@ def main():
         loss.backward()
         optimizer.step()
         # Save ELBO and parameters
-        loss_list.append(loss.item())
+        log_likelihood_list.append(-loss.item())
         phi_list.append(torch.sigmoid(phi).data.item())
         mu1_list.append(mu1.data.item())
         mu2_list.append(mu2.data.item())
@@ -121,9 +121,9 @@ def main():
     # Generate data
     axs[1,0].hist(data_posterior, bins=50, density=True)
     axs[1,0].set_title('Generate data')
-    # Loss
-    axs[0,1].plot(loss_list)
-    axs[0,1].set_title('Loss')
+    # Training
+    axs[0,1].plot(log_likelihood_list)
+    axs[0,1].set_title('Log-likelihood')
     # Parameters
     axs[1,1].plot(mu1_list, label='mu1')
     axs[1,1].plot(mu2_list, label='mu2')

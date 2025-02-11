@@ -51,10 +51,10 @@ class VAE(nn.Module):
         z = mu_z + sigma_z * torch.randn_like(sigma_z)
         mu_x = self.p(z)
 
-        l1 = torch.sum((x - mu_x)**2)
-        l2 = torch.sum(sigma_z**2 + mu_z**2 - log_sigma2_z - 1)
-        loss = l1 + l2
-        return loss, l1, l2
+        l1 = -0.5 * torch.sum((x - mu_x)**2)
+        l2 = 0.5 * torch.sum(1.0 + log_sigma2_z - mu_z**2 - sigma_z**2)
+        elbo = l1 + l2
+        return elbo, l1, l2
 
 
 def main():
@@ -112,31 +112,32 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     # Train model
-    loss_list = []
     elbo_list = []
-    d_kl_list = []
+    l1_list = []
+    l2_list = []
     for epoch in range(num_epochs):
-        loss_sum = 0
         elbo_sum = 0
-        d_kl_sum = 0
+        l1_sum = 0
+        l2_sum = 0
         batch_count = 0
         for batch in dataloader:
             x = batch[0]
             optimizer.zero_grad()
-            loss, l1, l2 = model(x)
+            elbo, l1, l2 = model(x)
+            loss = -elbo
             loss.backward()
             optimizer.step()
-            loss_sum += loss.item()
-            elbo_sum += l1.item()
-            d_kl_sum += l2.item()
+            elbo_sum += elbo.item()
+            l1_sum += l1.item()
+            l2_sum += l2.item()
             batch_count += 1
-        loss_sum /= batch_count
-        elbo_sum /= batch_count
-        d_kl_sum /= batch_count
-        print(f"Epoch: {epoch+1}/{num_epochs}, Loss: {loss_sum:.4f}, ELBO: {elbo_sum:.4f}, D_KL: {d_kl_sum:.4f}")
-        loss_list.append(loss_sum)
-        elbo_list.append(elbo_sum)
-        d_kl_list.append(d_kl_sum)
+        elbo_mean = elbo_sum / batch_count
+        l1_mean = l1_sum / batch_count
+        l2_mean = l2_sum / batch_count
+        print(f"Epoch: {epoch+1}/{num_epochs}, ELBO: {elbo_mean:.4f}, L1: {l1_mean:.4f}, L2: {l2_mean:.4f}")
+        elbo_list.append(elbo_mean)
+        l1_list.append(l1_mean)
+        l2_list.append(l2_mean)
 
     # Generate data from posterior
     z = torch.randn(num_samples, latent_dim)
@@ -150,10 +151,10 @@ def main():
     # Generate data
     axs[1].hist(data_posterior, bins=50, density=True)
     axs[1].set_title('Generate data')
-    # Loss
-    axs[2].plot(loss_list, label='Loss')
+    # Training
     axs[2].plot(elbo_list, label='ELBO')
-    axs[2].plot(d_kl_list, label='$D_{KL}$')
+    axs[2].plot(l1_list, label='L1')
+    axs[2].plot(l2_list, label='L2')
     axs[2].set_title('Training')
     axs[2].legend()
 

@@ -60,7 +60,7 @@ def main():
     sigma2 = 2.0
 
     # Train model
-    elbo_list = []
+    log_likelihood_list = []
     phi_list = [phi]
     mu1_list = [mu1]
     mu2_list = [mu2]
@@ -79,10 +79,10 @@ def main():
         mu2 = np.sum(q2 * data) / np.sum(q2)
         sigma1 = np.sqrt(np.sum(q1 * (data - mu1)**2) / np.sum(q1))
         sigma2 = np.sqrt(np.sum(q2 * (data - mu2)**2) / np.sum(q2))
-        # Calculate ELBO
-        elbo = np.mean(np.log(c3 + 1e-10))
-        # Save ELBO and parameters
-        elbo_list.append(elbo)
+        # Calculate log-likelihood
+        log_likelihood = np.sum(np.log(c3 + 1e-10)) / num_samples
+        # Save log-likelihood and parameters
+        log_likelihood_list.append(log_likelihood)
         phi_list.append(phi)
         mu1_list.append(mu1)
         mu2_list.append(mu2)
@@ -112,9 +112,9 @@ def main():
     # Generate data
     axs[1,0].hist(data_posterior, bins=50, density=True)
     axs[1,0].set_title('Generate data')
-    # Loss
-    axs[0,1].plot(elbo_list)
-    axs[0,1].set_title('ELBO')
+    # Training
+    axs[0,1].plot(log_likelihood_list)
+    axs[0,1].set_title('Log-likelihood')
     # Parameters
     axs[1,1].plot(mu1_list, label='mu1')
     axs[1,1].plot(mu2_list, label='mu2')
