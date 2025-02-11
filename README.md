@@ -7,6 +7,7 @@ To execute the tutorials, clone the repository and run them using uv.
 ```bash
 git clone https://github.com/bondrewd/ml-tutorial.git
 cd ml-tutorial
+uv sync
 uv run tutorial_XX.py
 ```
 
