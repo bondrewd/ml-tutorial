@@ -10,7 +10,7 @@ def main():
     parser = argparse.ArgumentParser(description='Tutorial 03')
     parser.add_argument('--num-samples', '-n', type=int, default=100000, help='Number of samples')
     parser.add_argument('--seed', '-s', type=int, default=0, help='Random seed')
-    parser.add_argument('--num-epochs', type=int, default=100, help='Number of epochs')
+    parser.add_argument('--num-epochs', type=int, default=25, help='Number of epochs')
     args = parser.parse_args()
 
     # Set arguments
@@ -39,11 +39,11 @@ def main():
 
     # Define parameters
     # Bad guess: 150 epochs
-    phi = 0.5
-    mu1 = 0.0
-    mu2 = 0.0
-    sigma1 = 1.0
-    sigma2 = 2.0
+    # phi = 0.5
+    # mu1 = 0.0
+    # mu2 = 0.0
+    # sigma1 = 1.0
+    # sigma2 = 2.0
 
     # So-so guess: 80 epochs
     # phi = 0.5
@@ -53,11 +53,11 @@ def main():
     # sigma2 = 6.0
 
     # Good guess: 25 epochs
-    # phi = 0.7
-    # mu1 = 13.0
-    # mu2 = 26.0
-    # sigma1 = 5.0
-    # sigma2 = 2.0
+    phi = 0.7
+    mu1 = 13.0
+    mu2 = 26.0
+    sigma1 = 5.0
+    sigma2 = 2.0
 
     # Train model
     elbo_list = []
