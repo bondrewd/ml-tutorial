@@ -53,9 +53,9 @@ def main():
     data = torch.tensor(data, dtype=torch.float32, requires_grad=False)
 
     # Define parameters
-    phi = nn.Parameter(torch.randn(1,1), requires_grad=True)
-    p1 = nn.Parameter(torch.randn(1,1), requires_grad=True)
-    p2 = nn.Parameter(torch.randn(1,1), requires_grad=True)
+    phi = nn.Parameter(torch.randn(1), requires_grad=True)
+    p1 = nn.Parameter(torch.randn(1), requires_grad=True)
+    p2 = nn.Parameter(torch.randn(1), requires_grad=True)
 
     # Define optimizer
     optimizer = torch.optim.Adam([phi, p1, p2], lr=lr)
