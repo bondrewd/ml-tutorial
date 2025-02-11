@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 
-def elbo(x, phi, mu1, mu2, sigma1, sigma2):
+def log_likelihood(x, phi, mu1, mu2, sigma1, sigma2):
     # Calculate probabilities
     phi = F.sigmoid(phi)
     sigma1 = F.softplus(sigma1)
@@ -15,7 +15,7 @@ def elbo(x, phi, mu1, mu2, sigma1, sigma2):
     # Calculate ELBO
     c1 = torch.exp(-0.5*(x-mu1)**2/sigma1**2) / (sigma1 * np.sqrt(2*np.pi)) * phi
     c2 = torch.exp(-0.5*(x-mu2)**2/sigma2**2) / (sigma2 * np.sqrt(2*np.pi)) * (1-phi)
-    return torch.mean(torch.log(c1 + c2 + 1e-10))
+    return torch.sum(torch.log(c1 + c2 + 1e-10))
 
 def main():
     # Parse command line arguments
@@ -87,7 +87,7 @@ def main():
     for _ in range(num_epochs):
         # Train
         optimizer.zero_grad()
-        loss = -elbo(data, phi, mu1, mu2, sigma1, sigma2)
+        loss = -log_likelihood(data, phi, mu1, mu2, sigma1, sigma2) / num_samples
         loss.backward()
         optimizer.step()
         # Save ELBO and parameters
