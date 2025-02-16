@@ -8,26 +8,26 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 
 
-def likelihood(x, gamma, theta1, theta2):
-    p_x_z1 = gamma * theta1 ** x * (1 - theta1) ** (1 - x)
-    p_x_z0 = (1 - gamma) * theta2 ** x * (1 - theta2) ** (1 - x)
+def likelihood(x, gamma, thetaA, thetaB):
+    p_x_z1 = gamma * thetaA ** x * (1 - thetaA) ** (1 - x)
+    p_x_z0 = (1 - gamma) * thetaB ** x * (1 - thetaB) ** (1 - x)
     p_x = p_x_z1 + p_x_z0
     likelihood = torch.prod(p_x)
     return likelihood
 
 
-def log_likelihood(x, gamma, theta1, theta2):
-    p_x_z1 = gamma * theta1 ** x * (1 - theta1) ** (1 - x)
-    p_x_z0 = (1 - gamma) * theta2 ** x * (1 - theta2) ** (1 - x)
+def log_likelihood(x, gamma, thetaA, thetaB):
+    p_x_z1 = gamma * thetaA ** x * (1 - thetaA) ** (1 - x)
+    p_x_z0 = (1 - gamma) * thetaB ** x * (1 - thetaB) ** (1 - x)
     p_x = p_x_z1 + p_x_z0
     log_p_x = torch.log(p_x)
     likelihood = torch.sum(log_p_x)
     return likelihood
 
 
-def log_likelihood_with_elbo_and_bad_q(x, gamma, theta1, theta2):
-    p_x_z1 = gamma * theta1 ** x * (1 - theta1) ** (1 - x)
-    p_x_z0 = (1 - gamma) * theta2 ** x * (1 - theta2) ** (1 - x)
+def log_likelihood_with_elbo_and_bad_q(x, gamma, thetaA, thetaB):
+    p_x_z1 = gamma * thetaA ** x * (1 - thetaA) ** (1 - x)
+    p_x_z0 = (1 - gamma) * thetaB ** x * (1 - thetaB) ** (1 - x)
     q_z1 = 0.5
     q_z0 = 0.5
     elbo_x = q_z1 * torch.log(p_x_z1 / q_z1) + q_z0 * torch.log(p_x_z0 / q_z0)
@@ -35,9 +35,9 @@ def log_likelihood_with_elbo_and_bad_q(x, gamma, theta1, theta2):
     return elbo
 
 
-def log_likelihood_with_elbo_and_good_q(x, gamma, theta1, theta2):
-    p_x_z1 = gamma * theta1 ** x * (1 - theta1) ** (1 - x)
-    p_x_z0 = (1 - gamma) * theta2 ** x * (1 - theta2) ** (1 - x)
+def log_likelihood_with_elbo_and_good_q(x, gamma, thetaA, thetaB):
+    p_x_z1 = gamma * thetaA ** x * (1 - thetaA) ** (1 - x)
+    p_x_z0 = (1 - gamma) * thetaB ** x * (1 - thetaB) ** (1 - x)
     p_x = p_x_z1 + p_x_z0
     q_z1 = p_x_z1 / p_x
     q_z0 = p_x_z0 / p_x
@@ -64,22 +64,22 @@ def main():
     torch.manual_seed(seed)
     # Set true parameters
     gamma_true = 0.8
-    theta1_true = 0.6
-    theta2_true = 0.3
+    thetaA_true = 0.6
+    thetaB_true = 0.3
     print("True parameters:")
     print(f"gamma:  {gamma_true:.2f}")
-    print(f"theta1: {theta1_true:.2f}")
-    print(f"theta2: {theta2_true:.2f}")
+    print(f"thetaA: {thetaA_true:.2f}")
+    print(f"thetaB: {thetaB_true:.2f}")
     # Generate data
     data = []
     for i in range(num_samples):
         if np.random.rand() < gamma_true:
-            if np.random.rand() < theta1_true:
+            if np.random.rand() < thetaA_true:
                 data.append(1)
             else:
                 data.append(0)
         else:
-            if np.random.rand() < theta2_true:
+            if np.random.rand() < thetaB_true:
                 data.append(1)
             else:
                 data.append(0)
@@ -87,48 +87,48 @@ def main():
 
     # Define parameters
     gamma = nn.Parameter(torch.randn(1), requires_grad=True)
-    theta1 = nn.Parameter(torch.randn(1), requires_grad=True)
-    theta2 = nn.Parameter(torch.randn(1), requires_grad=True)
+    thetaA = nn.Parameter(torch.randn(1), requires_grad=True)
+    thetaB = nn.Parameter(torch.randn(1), requires_grad=True)
 
     # Define optimizer
-    optimizer = torch.optim.Adam([gamma, theta1, theta2], lr=lr)
+    optimizer = torch.optim.Adam([gamma, thetaA, thetaB], lr=lr)
 
     # Train model
     loss_list = []
     gamma_list = [F.sigmoid(gamma).item()]
-    theta1_list = [F.sigmoid(theta1).item()]
-    theta2_list = [F.sigmoid(theta2).item()]
+    thetaA_list = [F.sigmoid(thetaA).item()]
+    thetaB_list = [F.sigmoid(thetaB).item()]
     for _ in range(num_epochs):
         # Train
         optimizer.zero_grad()
-        #loss = -likelihood(data, F.sigmoid(gamma), F.sigmoid(theta1), F.sigmoid(theta2)) / num_samples
-        #loss = -log_likelihood(data, F.sigmoid(gamma), F.sigmoid(theta1), F.sigmoid(theta2)) / num_samples
-        #loss = -log_likelihood_with_elbo_and_bad_q(data, F.sigmoid(gamma), F.sigmoid(theta1), F.sigmoid(theta2)) / num_samples
-        loss = -log_likelihood_with_elbo_and_good_q(data, F.sigmoid(gamma), F.sigmoid(theta1), F.sigmoid(theta2)) / num_samples
+        #loss = -likelihood(data, F.sigmoid(gamma), F.sigmoid(thetaA), F.sigmoid(thetaB)) / num_samples
+        #loss = -log_likelihood(data, F.sigmoid(gamma), F.sigmoid(thetaA), F.sigmoid(thetaB)) / num_samples
+        #loss = -log_likelihood_with_elbo_and_bad_q(data, F.sigmoid(gamma), F.sigmoid(thetaA), F.sigmoid(thetaB)) / num_samples
+        loss = -log_likelihood_with_elbo_and_good_q(data, F.sigmoid(gamma), F.sigmoid(thetaA), F.sigmoid(thetaB)) / num_samples
         loss.backward()
         optimizer.step()
         # Save likelihood and parameters
         loss_list.append(loss.item())
         gamma_list.append(F.sigmoid(gamma).item())
-        theta1_list.append(F.sigmoid(theta1).item())
-        theta2_list.append(F.sigmoid(theta2).item())
+        thetaA_list.append(F.sigmoid(thetaA).item())
+        thetaB_list.append(F.sigmoid(thetaB).item())
 
     # Print results
     print("Estimated parameters:")
     print(f"gamma:  {F.sigmoid(gamma).item():.2f}")
-    print(f"theta1: {F.sigmoid(theta1).item():.2f}")
-    print(f"theta2: {F.sigmoid(theta2).item():.2f}")
+    print(f"thetaA: {F.sigmoid(thetaA).item():.2f}")
+    print(f"thetaB: {F.sigmoid(thetaB).item():.2f}")
 
     # Generate data from posterior
     data_posterior = []
     for i in range(num_samples):
         if np.random.rand() < F.sigmoid(gamma).data.item():
-            if np.random.rand() < F.sigmoid(theta1).data.item():
+            if np.random.rand() < F.sigmoid(thetaA).data.item():
                 data_posterior.append(1)
             else:
                 data_posterior.append(0)
         else:
-            if np.random.rand() < F.sigmoid(theta2).data.item():
+            if np.random.rand() < F.sigmoid(thetaB).data.item():
                 data_posterior.append(1)
             else:
                 data_posterior.append(0)
@@ -146,8 +146,8 @@ def main():
     axs[0,1].set_title('Loss')
     # Parameters
     axs[1,1].plot(gamma_list, label=r'$\gamma$')
-    axs[1,1].plot(theta1_list, label=r'$\theta_1$')
-    axs[1,1].plot(theta2_list, label=r'$\theta_2$')
+    axs[1,1].plot(thetaA_list, label=r'$\theta_A$')
+    axs[1,1].plot(thetaB_list, label=r'$\theta_B$')
     axs[1,1].legend()
     axs[1,1].set_title('Parameters')
 
