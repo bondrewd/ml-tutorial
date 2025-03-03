@@ -12,7 +12,7 @@ def log_likelihood(x, phi, mu1, mu2, sigma1, sigma2):
     phi = F.sigmoid(phi)
     sigma1 = F.softplus(sigma1)
     sigma2 = F.softplus(sigma2)
-    # Calculate ELBO
+    # Calculate log-likelihood
     c1 = torch.exp(-0.5*(x-mu1)**2/sigma1**2) / (sigma1 * np.sqrt(2*np.pi)) * phi
     c2 = torch.exp(-0.5*(x-mu2)**2/sigma2**2) / (sigma2 * np.sqrt(2*np.pi)) * (1-phi)
     return torch.sum(torch.log(c1 + c2 + 1e-10))
